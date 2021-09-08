@@ -6,7 +6,11 @@ const authMiddleware = (request, response, next) => {
   const {
     authorization,
   } = request.headers;
+  const {
+    jwt_token: jwtToken,
+  } = request.cookies;
 
+  console.log(jwtToken);
   if (!authorization) {
     return response.status(401).json({message: 'Provide authorization header'});
   }

@@ -1,30 +1,42 @@
-'use strict';
-
-const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const passwordGenerator = require('generate-password');
-const nodemailer = require('nodemailer');
-require('dotenv').config();
+const uuid = require('uuid');
 
 const {
   User,
 } = require('../models/userModel');
+
 const {
   InvalidRequestError,
 } = require('../utils/errors');
 
-const registration = async ({email, password, role}) => {
+const {
+  sendActivationMail,
+  sendRestorePasswordMail,
+} = require('./mailService');
+
+const {
+  generateTokens, saveToken,
+} = require('./tokenService');
+
+const registration = async ({ email, password, role }) => {
+  const activationLink = uuid.v4();
   const user = new User({
     email,
     password: await bcrypt.hash(password, 10),
     role,
+    activationLink,
   });
 
+  await sendActivationMail({
+    to: email,
+    link: `${process.env.API_URL}/api/activate/${activationLink}`,
+  });
   await user.save();
 };
 
-const login = async ({email, password}) => {
-  const user = await User.findOne({email});
+const login = async ({ email, password }) => {
+  const user = await User.findOne({ email });
 
   if (!user) {
     throw new InvalidRequestError('Invalid email or password');
@@ -34,16 +46,29 @@ const login = async ({email, password}) => {
     throw new InvalidRequestError('Invalid email or password');
   }
 
-  const jwtToken = jwt.sign({
+  const tokens = generateTokens({
     _id: user._id,
     email: user.email,
     role: user.role,
-  }, 'secret');
-  return jwtToken;
+    isActivated: user.isActivated,
+  });
+  await saveToken(user._id, tokens.refreshToken);
+  return tokens;
 };
 
-const forgotPassword = async ({email}) => {
-  const user = await User.findOne({email});
+const logout = async () => {
+};
+
+const activateAccount = async () => {
+
+};
+
+const refreshToken = async () => {
+
+};
+
+const forgotPassword = async ({ email }) => {
+  const user = await User.findOne({ email });
 
   if (!user) {
     throw new InvalidRequestError('User doesn\'t exist');
@@ -54,27 +79,20 @@ const forgotPassword = async ({email}) => {
     numbers: true,
   });
 
+  await sendRestorePasswordMail({
+    to: email,
+    newPassword,
+  });
+
   user.password = await bcrypt.hash(newPassword, 10);
   await user.save();
-
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.EMAIL,
-      pass: process.env.PASSWORD,
-    },
-  });
-
-  await transporter.sendMail({
-    from: process.env.EMAIL,
-    to: `${email}`,
-    subject: 'Forgot Password Message',
-    text: `New Password: ${newPassword}. Please, change it as fast as you can`,
-  });
 };
 
 module.exports = {
   registration,
   login,
+  logout,
+  activateAccount,
+  refreshToken,
   forgotPassword,
 };

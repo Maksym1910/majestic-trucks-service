@@ -16,10 +16,17 @@ const User = mongoose.model('User', {
     type: String,
     required: true,
   },
+  isActivated: {
+    type: Boolean,
+    default: false,
+  },
+  activationLink: {
+    type: String,
+  },
   createdDate: {
     type: Date,
     default: Date.now(),
   },
 });
 
-module.exports = {User};
+module.exports = { User };

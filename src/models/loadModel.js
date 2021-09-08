@@ -46,4 +46,4 @@ const Load = mongoose.model('Load', {
   },
 });
 
-module.exports = {Load};
+module.exports = { Load };

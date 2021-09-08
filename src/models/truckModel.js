@@ -29,4 +29,4 @@ const Truck = mongoose.model('Truck', {
   },
 });
 
-module.exports = {Truck};
+module.exports = { Truck };

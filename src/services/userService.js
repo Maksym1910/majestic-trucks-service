@@ -1,8 +1,8 @@
 'use strict';
 
 const bcrypt = require('bcrypt');
-const {User} = require('../models/userModel');
-const {InvalidCredentialstError} = require('../utils/errors');
+const { User } = require('../models/userModel');
+const { InvalidCredentialstError } = require('../utils/errors');
 
 const getUserProfileInfo = async (userId) => {
   const user = await User.findById(userId);
@@ -28,7 +28,7 @@ const changeUserAccountPassword = async (userId, oldPassword, newPassword) => {
 };
 
 const deleteUserAccount = async (userId) => {
-  await User.findOneAndRemove({_id: userId});
+  await User.findOneAndRemove({ _id: userId });
 };
 
 module.exports = {
