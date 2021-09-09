@@ -1,10 +1,10 @@
 'use strict';
 
-const {Truck} = require('../models/truckModel');
-const {InvalidRequestError} = require('../utils/errors');
+const { Truck } = require('../models/truckModel');
+const { InvalidRequestError } = require('../utils/errors');
 
 const getDriverTrucksByDriverId = async (userId) => {
-  const driverTrucks = await Truck.find({created_by: userId});
+  const driverTrucks = await Truck.find({ created_by: userId });
   return driverTrucks;
 };
 
@@ -16,7 +16,7 @@ const addTruckToDriver = async (driverId, truckPayload) => {
       length: 250,
       height: 170,
     };
-    const truck = new Truck({...truckPayload, driverId});
+    const truck = new Truck({ ...truckPayload, driverId });
     await truck.save();
   }
 
@@ -27,7 +27,7 @@ const addTruckToDriver = async (driverId, truckPayload) => {
       length: 250,
       height: 170,
     };
-    const truck = new Truck({...truckPayload, driverId});
+    const truck = new Truck({ ...truckPayload, driverId });
     await truck.save();
   }
 
@@ -38,13 +38,13 @@ const addTruckToDriver = async (driverId, truckPayload) => {
       length: 350,
       height: 200,
     };
-    const truck = new Truck({...truckPayload, driverId});
+    const truck = new Truck({ ...truckPayload, driverId });
     await truck.save();
   }
 };
 
 const getTruckByIdForDriver = async (truckId, driverId) => {
-  const truck = await Truck.findOne({_id: truckId, created_by: driverId});
+  const truck = await Truck.findOne({ _id: truckId, created_by: driverId });
 
   if (!truck) {
     throw new InvalidRequestError('No truck with such id found');
@@ -54,7 +54,7 @@ const getTruckByIdForDriver = async (truckId, driverId) => {
 };
 
 const updateTruckByIdForDriver = async (truckId, driverId, type) => {
-  const truck = await Truck.findOne({_id: truckId, created_by: driverId});
+  const truck = await Truck.findOne({ _id: truckId, created_by: driverId });
 
   if (!truck) {
     throw new InvalidRequestError('No truck with such id found');
@@ -65,11 +65,11 @@ const updateTruckByIdForDriver = async (truckId, driverId, type) => {
         `You can\'t update truck info, while it assigned`);
   }
 
-  await truck.updateOne({$set: {type}});
+  await truck.updateOne({ $set: { type } });
 };
 
 const deleteTruckByIdForDriver = async (truckId, driverId) => {
-  const truck = await Truck.findOne({_id: truckId, created_by: driverId});
+  const truck = await Truck.findOne({ _id: truckId, created_by: driverId });
 
   if (!truck) {
     throw new InvalidRequestError('No truck with such id found');
@@ -85,7 +85,7 @@ const deleteTruckByIdForDriver = async (truckId, driverId) => {
 
 const assignTruckByIdForDriver = async (truckId, driverId) => {
   const assignedTruck = await Truck.findOne(
-      {created_by: driverId, assigned_to: driverId},
+      { created_by: driverId, assigned_to: driverId },
   );
 
   if (assignedTruck && assignedTruck.status === 'OL') {
@@ -93,13 +93,13 @@ const assignTruckByIdForDriver = async (truckId, driverId) => {
   }
 
   await Truck.findOneAndUpdate(
-      {created_by: driverId, assigned_to: driverId},
-      {$set: {assigned_to: null}},
+      { created_by: driverId, assigned_to: driverId },
+      { $set: { assigned_to: null } },
   );
 
   const truck = await Truck.findOneAndUpdate(
-      {_id: truckId, created_by: driverId},
-      {$set: {assigned_to: driverId}},
+      { _id: truckId, created_by: driverId },
+      { $set: { assigned_to: driverId } },
   );
 
   if (!truck) {

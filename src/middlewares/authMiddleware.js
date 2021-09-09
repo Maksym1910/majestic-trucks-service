@@ -1,18 +1,12 @@
-'use strict';
-
-const jwt = require('jsonwebtoken');
+const { validateToken } = require('../services/tokenService');
 
 const authMiddleware = (request, response, next) => {
   const {
     authorization,
   } = request.headers;
-  const {
-    jwt_token: jwtToken,
-  } = request.cookies;
 
-  console.log(jwtToken);
   if (!authorization) {
-    return response.status(401).json({message: 'Provide authorization header'});
+    return response.status(401).json({ message: 'Provide authorization header' });
   }
 
   const [, token] = authorization.split(' ');
@@ -24,16 +18,17 @@ const authMiddleware = (request, response, next) => {
   }
 
   try {
-    const tokenPayload = jwt.verify(token, 'secret');
+    const tokenPayload = validateToken(token, process.env.JWT_ACCESS_SECRET);
     request.user = {
       userId: tokenPayload._id,
       email: tokenPayload.email,
       role: tokenPayload.role,
+      isActivated: tokenPayload.isActivated,
     };
     next();
   } catch (error) {
-    response.status(401).json({message: error.message});
+    response.status(401).json({ message: error.message });
   }
 };
 
-module.exports = {authMiddleware};
+module.exports = { authMiddleware };

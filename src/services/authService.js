@@ -8,6 +8,7 @@ const {
 
 const {
   InvalidRequestError,
+  InvalidCredentialstError,
 } = require('../utils/errors');
 
 const {
@@ -16,8 +17,13 @@ const {
 } = require('./mailService');
 
 const {
-  generateTokens, saveToken,
+  generateTokens,
+  saveToken,
+  removeToken,
+  validateToken,
+  findToken,
 } = require('./tokenService');
+
 
 const registration = async ({ email, password, role }) => {
   const activationLink = uuid.v4();
@@ -30,7 +36,7 @@ const registration = async ({ email, password, role }) => {
 
   await sendActivationMail({
     to: email,
-    link: `${process.env.API_URL}/api/activate/${activationLink}`,
+    link: `${process.env.API_URL}/api/auth/activate/${activationLink}`,
   });
   await user.save();
 };
@@ -56,15 +62,42 @@ const login = async ({ email, password }) => {
   return tokens;
 };
 
-const logout = async () => {
+const logout = async (refreshToken) => {
+  await removeToken(refreshToken);
 };
 
-const activateAccount = async () => {
+const activateAccount = async (activationLink) => {
+  const user = await User.findOne({ activationLink });
 
+  if (!user) {
+    throw new InvalidRequestError('Invalid activation link');
+  }
+
+  user.isActivated = true;
+  await user.save();
 };
 
-const refreshToken = async () => {
+const refreshTokens = async (refreshToken) => {
+  if (!refreshToken) {
+    throw new InvalidCredentialstError();
+  }
 
+  const userData = await validateToken(refreshToken, process.env.JWT_REFRESH_SECRET);
+  const tokenFromDB = await findToken(refreshToken);
+
+  if (!userData || !tokenFromDB) {
+    throw new InvalidCredentialstError();
+  }
+
+  const user = await User.findOne({ _id: userData._id });
+  const tokens = generateTokens({
+    _id: user._id,
+    email: user.email,
+    role: user.role,
+    isActivated: user.isActivated,
+  });
+  await saveToken(user._id, tokens.refreshToken);
+  return tokens;
 };
 
 const forgotPassword = async ({ email }) => {
@@ -93,6 +126,6 @@ module.exports = {
   login,
   logout,
   activateAccount,
-  refreshToken,
+  refreshTokens,
   forgotPassword,
 };

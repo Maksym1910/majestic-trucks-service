@@ -3,7 +3,7 @@
 const express = require('express');
 const router = new express.Router();
 
-const {asyncWrapper} = require('../utils/apiUtils');
+const { asyncWrapper } = require('../utils/apiUtils');
 const {
   getDriverTrucksByDriverId,
   addTruckToDriver,
@@ -19,9 +19,9 @@ const {
 router.get(
     '/',
     asyncWrapper(async (request, response) => {
-      const {userId} = request.user;
+      const { userId } = request.user;
       const driverTrucksInfo = await getDriverTrucksByDriverId(userId);
-      response.json({trucks: driverTrucksInfo});
+      response.json({ trucks: driverTrucksInfo });
     }),
 );
 
@@ -29,26 +29,26 @@ router.post(
     '/',
     trucksTypeValidator,
     asyncWrapper(async (request, response) => {
-      const {userId} = request.user;
+      const { userId } = request.user;
       const truckPayload = {
         type: request.body.type,
         created_by: userId,
       };
 
       await addTruckToDriver(userId, truckPayload);
-      response.json({message: 'Truck created successfully'});
+      response.json({ message: 'Truck created successfully' });
     }),
 );
 
 router.get(
     '/:id',
     asyncWrapper(async (request, response) => {
-      const {userId} = request.user;
-      const {id} = request.params;
+      const { userId } = request.user;
+      const { id } = request.params;
 
       const truck = await getTruckByIdForDriver(id, userId);
 
-      response.json({truck});
+      response.json({ truck });
     }),
 );
 
@@ -56,34 +56,34 @@ router.put(
     '/:id',
     trucksTypeValidator,
     asyncWrapper(async (request, response) => {
-      const {userId} = request.user;
-      const {id} = request.params;
-      const {type} = request.body;
+      const { userId } = request.user;
+      const { id } = request.params;
+      const { type } = request.body;
 
       await updateTruckByIdForDriver(id, userId, type);
-      response.json({message: 'Truck details changed successfully'});
+      response.json({ message: 'Truck details changed successfully' });
     }),
 );
 
 router.delete(
     '/:id',
     asyncWrapper(async (request, response) => {
-      const {userId} = request.user;
-      const {id} = request.params;
+      const { userId } = request.user;
+      const { id } = request.params;
 
       await deleteTruckByIdForDriver(id, userId);
-      response.json({message: 'Truck deleted successfully'});
+      response.json({ message: 'Truck deleted successfully' });
     }),
 );
 
 router.post(
     '/:id/assign',
     asyncWrapper(async (request, response) => {
-      const {userId} = request.user;
-      const {id} = request.params;
+      const { userId } = request.user;
+      const { id } = request.params;
 
       await assignTruckByIdForDriver(id, userId);
-      response.json({message: 'Truck assigned successfully'});
+      response.json({ message: 'Truck assigned successfully' });
     }),
 );
 

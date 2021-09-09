@@ -9,6 +9,9 @@ const {
   forgotPassword,
   registration,
   login,
+  activateAccount,
+  logout,
+  refreshTokens,
 } = require('../services/authService');
 
 const {
@@ -27,7 +30,9 @@ router.post(
 
       await registration({ email, password, role });
 
-      response.json({ message: 'Profile created successfully' });
+      response.json({
+        message: 'Profile created successfully. For activation check your email',
+      });
     }),
 );
 
@@ -55,42 +60,46 @@ router.post(
 router.post(
     '/logout',
     asyncWrapper(async (request, response) => {
-      // const {
-      //   email,
-      //   password,
-      // } = request.body;
-      //
-      // const token = await login({ email, password });
-      //
-      // response.json({ jwt_token: token });
+      const {
+        refreshToken,
+      } = request.cookies;
+
+      await logout(refreshToken);
+      response.clearCookie('refreshToken');
+      response.json({ message: 'Successfully logout' });
     }),
 );
 
 router.get(
     '/activate/:link',
     asyncWrapper(async (request, response) => {
-      // const {
-      //   email,
-      //   password,
-      // } = request.body;
-      //
-      // const token = await login({ email, password });
-      //
-      // response.json({ jwt_token: token });
+      const {
+        link,
+      } = request.params;
+
+      await activateAccount(link);
+
+      response.redirect(process.env.CLIENT_URL);
     }),
 );
 
-router.get(
+router.post(
     '/refresh',
     asyncWrapper(async (request, response) => {
-      // const {
-      //   email,
-      //   password,
-      // } = request.body;
-      //
-      // const token = await login({ email, password });
-      //
-      // response.json({ jwt_token: token });
+      const {
+        refreshToken,
+      } = request.cookies;
+
+      const tokens = await refreshTokens(refreshToken);
+      response.cookie(
+          'refreshToken',
+          tokens.refreshToken,
+          {
+            maxAge: 30 * 24 * 60 * 60 * 1000,
+            httpOnly: true,
+          },
+      );
+      response.json(tokens);
     }),
 );
 

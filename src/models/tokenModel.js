@@ -11,6 +11,10 @@ const Token = mongoose.model('Token', {
     type: String,
     required: true,
   },
+  createdDate: {
+    type: Date,
+    default: Date.now(),
+  },
 });
 
 module.exports = { Token };

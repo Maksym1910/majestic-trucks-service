@@ -27,7 +27,29 @@ const saveToken = async (userId, refreshToken) => {
   return token;
 };
 
+const removeToken = async (refreshToken) => {
+  const removedToken = await Token.deleteOne({ refreshToken });
+  return removedToken;
+};
+
+const validateToken = (token, secret) => {
+  try {
+    const userData = jwt.verify(token, secret);
+    return userData;
+  } catch (e) {
+    return null;
+  }
+};
+
+const findToken = async (refreshToken) => {
+  const tokenFromDB = await Token.findOne({ refreshToken });
+  return tokenFromDB;
+};
+
 module.exports = {
   generateTokens,
   saveToken,
+  removeToken,
+  validateToken,
+  findToken,
 };
