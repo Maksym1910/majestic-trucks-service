@@ -48,6 +48,10 @@ const login = async ({ email, password }) => {
     throw new InvalidRequestError('Invalid email or password');
   }
 
+  if (!user.isActivated) {
+    throw new InvalidCredentialstError('Not activated account');
+  }
+
   if (!(await bcrypt.compare(password, user.password))) {
     throw new InvalidRequestError('Invalid email or password');
   }

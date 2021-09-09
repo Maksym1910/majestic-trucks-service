@@ -1,4 +1,5 @@
 const { validateToken } = require('../services/tokenService');
+const { InvalidCredentialstError } = require('../utils/errors');
 
 const authMiddleware = (request, response, next) => {
   const {
@@ -19,6 +20,10 @@ const authMiddleware = (request, response, next) => {
 
   try {
     const tokenPayload = validateToken(token, process.env.JWT_ACCESS_SECRET);
+    if (!tokenPayload.isActivated) {
+      throw new InvalidCredentialstError('Not activated account');
+    }
+
     request.user = {
       userId: tokenPayload._id,
       email: tokenPayload.email,
