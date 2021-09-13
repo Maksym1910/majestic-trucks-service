@@ -3,7 +3,7 @@
 
 ## Usage
 
-- You should have installed [NodeJS](https://nodejs.org/en/) 
+- You should install [NodeJS](https://nodejs.org/en/) 
 - Fork and clone this repository
 - Run `npm i` to install dependencies
 - Run `npm start` to start the server and stop with Ctrl+C
