@@ -1,16 +1,20 @@
 # Majestic Trucks
 <p><b>UBER like service for freight trucks</b></p>
 
-## Usage
+## Server
 
 - You should have installed [NodeJS](https://nodejs.org/en/) 
 - Fork and clone this repository
+- Change directory to `/server`
 - Run `npm i` to install dependencies
 - Run `npm start` to start the server and stop with Ctrl+C
 - Go to [localhost](http://localhost:8080)
 - After `/api/` select methods or use [POSTMAN](https://www.postman.com/) . Projects is still developing, so
   it'd be easier in the future.
 - API DOCUMENTATION. Open `openapi.yaml` file and paste all the content inside into [Swagger Editor](https://editor.swagger.io/)
+
+## Client
+Frontend part is still developing, so you will be able to interact with ui in the future
 
 ## Contributor
 
